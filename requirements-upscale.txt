@@ -1,0 +1,4 @@
+# AI upscaler for SHARP inputs, installed into the base .venv next to SHARP.
+# spandrel loads Real-ESRGAN and other super-resolution architectures in plain PyTorch.
+spandrel==0.4.2
+einops==0.8.2

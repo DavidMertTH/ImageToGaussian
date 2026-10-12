@@ -1,0 +1,37 @@
+# Tested pins for .venv-dit360 (from requirements-dit360.in). Install CUDA PyTorch first:
+#   python -m pip install torch==2.8.0 torchvision==0.23.0 --index-url https://download.pytorch.org/whl/cu128
+accelerate==1.15.0
+certifi==2026.7.22
+charset-normalizer==3.5.2
+colorama==0.4.6
+diffusers==0.35.2
+filelock==3.32.3
+fsspec==2026.7.0
+huggingface_hub==0.36.2
+idna==3.20
+importlib_metadata==9.0.1
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+mpmath==1.3.0
+networkx==3.6.1
+numpy==2.2.6
+opencv-python-headless==5.0.0.93
+packaging==26.3
+peft==0.21.2
+pillow==12.3.0
+protobuf==7.36.2
+psutil==7.2.2
+PyYAML==6.0.3
+regex==2026.9.29
+requests==2.34.2
+safetensors==0.8.0
+scipy==1.18.1
+sentencepiece==0.2.2
+sympy==1.14.0
+tokenizers==0.21.4
+tqdm==4.70.1
+transformers==4.52.4
+typing_extensions==4.16.0
+urllib3==2.8.0
+zipp==4.1.1
+hf-xet==1.7.0

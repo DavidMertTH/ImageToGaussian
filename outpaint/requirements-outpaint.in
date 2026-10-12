@@ -1,0 +1,15 @@
+# Unpinned inputs for .venv-outpaint; requirements-outpaint.txt holds the tested pins.
+diffusers==0.41.0
+transformers
+accelerate
+peft
+safetensors
+huggingface-hub
+sentencepiece
+protobuf
+opencv-python-headless
+scipy
+numpy
+Pillow
+spandrel
+einops

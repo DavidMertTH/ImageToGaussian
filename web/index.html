@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#151515" />
+    <title>3D Viewer</title>
+  </head>
+  <body>
+    <main class="viewer" id="drop-zone" aria-label="Gaussian Splat Viewer">
+      <div id="viewer-canvas" class="viewer-canvas"></div>
+
+      <header class="toolbar">
+        <div class="toolbar-start">
+          <button id="menu-toggle" class="quiet-button menu-toggle" type="button" aria-expanded="false" aria-controls="scene-menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+            <span>Bilder</span>
+          </button>
+          <button id="pipeline-toggle" class="quiet-button menu-toggle" type="button" aria-expanded="false" aria-controls="pipeline-panel">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="5" r="2" /><circle cx="6" cy="12" r="2" /><circle cx="6" cy="19" r="2" /><path d="M6 7v3m0 4v3M11 5h9M11 12h9M11 19h6" /></svg>
+            <span>Pipeline</span>
+          </button>
+        </div>
+        <div class="toolbar-actions">
+          <button id="settings-button" class="upload-button settings-button" type="button" title="Einstellungen" aria-label="Einstellungen" aria-haspopup="dialog" aria-controls="settings-dialog">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 3-.7 2.4-2 .9-2.3-.6L2.9 9l1.6 1.8v2.4L2.9 15l1.6 3.3 2.3-.6 2 .9.7 2.4h5l.7-2.4 2-.9 2.3.6 1.6-3.3-1.6-1.8v-2.4L21.1 9l-1.6-3.3-2.3.6-2-.9-.7-2.4z" /><circle cx="12" cy="12" r="3" /></svg>
+          </button>
+          <button id="upload-button" class="upload-button" type="button" title="Bild öffnen" aria-label="Bild öffnen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5" /><circle cx="8.5" cy="9" r="1.5" /><path d="m4 17 5-5 3 3 2-2 6 5" /></svg>
+          </button>
+        </div>
+      </header>
+
+      <button id="menu-backdrop" class="menu-backdrop" type="button" aria-label="Bildmenü schließen" hidden></button>
+      <aside id="scene-menu" class="scene-menu" aria-label="Bilder" hidden>
+        <div class="scene-menu-header">
+          <div>
+            <h2>Bilder</h2>
+            <p id="scene-count" class="scene-count"></p>
+          </div>
+          <button id="menu-close" class="processing-cancel" type="button" title="Schließen" aria-label="Bildmenü schließen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </div>
+        <div id="scene-list" class="scene-list"></div>
+      </aside>
+
+      <div id="artifact-viewer" class="artifact-viewer" hidden>
+        <img id="artifact-image" alt="" draggable="false" />
+        <div class="artifact-caption">
+          <span id="artifact-label"></span>
+          <a id="artifact-open" class="artifact-link" href="#" target="_blank" rel="noopener">Original öffnen</a>
+          <button id="artifact-close" class="processing-cancel" type="button" title="Bild schließen" aria-label="Bild schließen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </div>
+      </div>
+      <div id="splat-badge" class="splat-badge" role="status" hidden>
+        <span id="splat-badge-label"></span>
+        <button id="splat-badge-back" class="artifact-link" type="button">Zur fertigen Szene</button>
+      </div>
+
+      <aside id="pipeline-panel" class="pipeline-panel" aria-labelledby="pipeline-title" hidden>
+        <div class="pipeline-header">
+          <div>
+            <h2 id="pipeline-title">Pipeline</h2>
+            <p id="pipeline-subtitle" class="scene-count"></p>
+          </div>
+          <button id="pipeline-close" class="processing-cancel" type="button" title="Schließen" aria-label="Pipeline schließen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+          </button>
+        </div>
+        <ol id="pipeline-steps" class="pipeline-steps"></ol>
+      </aside>
+
+      <div id="viewer-empty" class="viewer-empty" hidden>
+        <svg class="empty-icon" viewBox="0 0 48 48" aria-hidden="true"><rect x="7" y="7" width="34" height="34" rx="6" /><circle cx="18" cy="18" r="3" /><path d="m7 33 10-10 8 8 7-7 9 9" /></svg>
+        <h1>Bild hierher ziehen</h1>
+        <p>Danach die Verarbeitung auswählen.</p>
+      </div>
+
+      <div id="drop-overlay" class="drop-overlay" hidden>
+        <div class="drop-target">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4" /></svg>
+          <h2>Bild hier ablegen</h2>
+        </div>
+      </div>
+
+      <div id="viewer-loading" class="viewer-loading" role="status" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="viewer-loading-detail">Szene wird geladen …</span>
+      </div>
+
+      <div id="compare-overlay" class="compare-overlay" aria-hidden="true" hidden>
+        <img id="compare-original" alt="Originalbild" draggable="false" />
+        <span class="compare-label compare-label-original">Original</span>
+        <span class="compare-label compare-label-scene">3D-Ansicht</span>
+      </div>
+      <div id="compare-divider" class="compare-divider" role="slider" tabindex="0" aria-label="Vergleichsposition" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" title="Ziehen zum Vergleichen" hidden>
+        <span class="compare-grip" aria-hidden="true"><i></i><i></i></span>
+      </div>
+
+      <footer class="viewer-footer">
+        <span id="viewer-hint" class="viewer-hint">Ziehen zum Drehen · Scrollen zum Zoomen</span>
+        <nav id="scene-stepper" class="scene-stepper" aria-label="Bildnavigation" hidden>
+          <button id="scene-previous" class="carousel-arrow" type="button" title="Vorheriges Bild" aria-label="Vorheriges Bild">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+          </button>
+          <span id="scene-position" class="scene-position" aria-live="polite"></span>
+          <button id="scene-next" class="carousel-arrow" type="button" title="Nächstes Bild" aria-label="Nächstes Bild">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+          </button>
+        </nav>
+        <div class="view-actions">
+          <button id="compare-button" class="quiet-button compare-button" type="button" title="Original und 3D-Ansicht vergleichen" aria-label="Original und 3D-Ansicht vergleichen" aria-pressed="false" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4 6h5v12H4zM15 6h5v12h-5z" /></svg>
+            <span>Vergleich</span>
+          </button>
+          <button id="vr-button" class="quiet-button" type="button" title="In VR ansehen" aria-label="In VR ansehen" aria-pressed="false" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 7h13A2.5 2.5 0 0 1 21 9.5v5a2.5 2.5 0 0 1-2.5 2.5h-3.3l-1.7-2.4a1.8 1.8 0 0 0-3 0L8.8 17H5.5A2.5 2.5 0 0 1 3 14.5v-5A2.5 2.5 0 0 1 5.5 7z" /><circle cx="8" cy="12" r="1.6" /><circle cx="16" cy="12" r="1.6" /></svg>
+            <span>VR</span>
+          </button>
+          <button id="reset-view" class="quiet-button" type="button" title="Ansicht zurücksetzen" aria-label="Ansicht zurücksetzen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10a9 9 0 1 1 2 8M3 4v6h6" /></svg>
+            <span>Zurücksetzen</span>
+          </button>
+          <a id="download-link" class="quiet-button" href="#" title="Splat speichern" aria-label="Splat speichern" download hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4" /></svg>
+            <span>Speichern</span>
+          </a>
+        </div>
+      </footer>
+
+      <div id="job-banner" class="job-status" role="status" hidden>
+        <span class="spinner" aria-hidden="true"></span>
+        <span id="job-stage">Bild wird verarbeitet …</span>
+        <span id="job-elapsed" class="job-elapsed">0 s</span>
+        <button id="job-cancel" class="processing-cancel job-cancel" type="button" title="Verarbeitung abbrechen" aria-label="Verarbeitung abbrechen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
+      <div id="toast" class="toast" role="status" hidden></div>
+    </main>
+    <dialog id="settings-dialog" class="processing-dialog settings-dialog" aria-labelledby="settings-title">
+      <div class="processing-header">
+        <h2 id="settings-title">Einstellungen</h2>
+        <button id="settings-close" class="processing-cancel" type="button" title="Schließen" aria-label="Einstellungen schließen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
+      <label for="fill-tool-select" class="settings-label">Bild-Ausfülltool</label>
+      <select id="fill-tool-select" class="settings-select" aria-describedby="fill-tool-description fill-tool-note">
+        <option value="flux-fill">FLUX Fill · 180° vor dir</option>
+        <option value="klein-lora">FLUX.2 Klein + LoRA · 360° rundum</option>
+      </select>
+      <select id="fill-coverage-select" class="settings-select settings-select-follow" aria-label="Abdeckung des Panoramas" hidden>
+        <option value="180">180° vor dir</option>
+        <option value="360">360° rundum</option>
+      </select>
+      <p id="fill-tool-description" class="settings-description"></p>
+      <p id="fill-tool-note" class="processing-note" role="status" hidden></p>
+      <p class="settings-scope">Gilt für neue Bilder mit Bilderweiterung. Die Auswahl wird automatisch gespeichert.</p>
+      <label for="depth-estimator-select" class="settings-label">3D-Modell</label>
+      <select id="depth-estimator-select" class="settings-select" aria-describedby="depth-estimator-description depth-estimator-note">
+        <option value="sharp">SHARP / Depth Pro</option>
+        <option value="da3" disabled>Depth Anything 3</option>
+      </select>
+      <p id="depth-estimator-description" class="settings-description">SHARP erzeugt die Gaussian-Szene mit seiner Depth-Pro-basierten Vorhersage.</p>
+      <p class="settings-scope">Gilt für neue Fotos sowie 180°- und 360°-Szenen.</p>
+      <p id="depth-estimator-note" class="processing-note" role="status" hidden></p>
+      <label for="sharp-resolution-select" class="settings-label">SHARP-Auflösung</label>
+      <select id="sharp-resolution-select" class="settings-select" aria-describedby="sharp-resolution-description sharp-scope">
+        <option value="1024">1024 px · schnell</option>
+        <option value="1536">1536 px · Standard</option>
+        <option value="2048">2048 px · feiner</option>
+        <option value="2560">2560 px · sehr fein, langsam</option>
+      </select>
+      <p id="sharp-resolution-description" class="settings-description"></p>
+      <label for="upscale-select" class="settings-label">KI-Upscaling</label>
+      <select id="upscale-select" class="settings-select" aria-describedby="upscale-description upscale-note sharp-scope">
+        <option value="off">Aus</option>
+        <option value="auto">Real-ESRGAN · kleinere Bilder vergrößern</option>
+      </select>
+      <p id="upscale-description" class="settings-description"></p>
+      <p id="upscale-note" class="processing-note" role="status" hidden></p>
+      <label for="depth-alignment-select" class="settings-label">Tiefenangleich bei 180° und 360°</label>
+      <select id="depth-alignment-select" class="settings-select" aria-describedby="depth-alignment-description depth-alignment-note sharp-scope">
+        <option value="off">Aus</option>
+        <option value="da2">DA² · nahtlose Übergänge (Experiment)</option>
+      </select>
+      <p id="depth-alignment-description" class="settings-description"></p>
+      <p id="depth-alignment-note" class="processing-note" role="status" hidden></p>
+      <p id="sharp-scope" class="settings-scope">Gilt nur für SHARP, für neue Fotos sowie 180°- und 360°-Szenen.</p>
+    </dialog>
+    <dialog id="processing-dialog" class="processing-dialog" aria-labelledby="processing-title">
+      <div class="processing-header">
+        <h2 id="processing-title">Wie verarbeiten?</h2>
+        <button id="processing-cancel" class="processing-cancel" type="button" title="Abbrechen" aria-label="Abbrechen">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
+      <div class="processing-file">
+        <img id="processing-preview" class="processing-preview" alt="" />
+        <p id="processing-filename" class="processing-filename"></p>
+      </div>
+      <div class="processing-choices">
+        <button id="process-panorama" class="processing-choice" type="button" disabled>
+          <span class="processing-choice-title">180° + SHARP</span>
+          <span class="processing-choice-description">Vordere Halbkugel mit FLUX Fill ergänzen</span>
+        </button>
+        <button id="process-image" class="processing-choice" type="button">
+          <span class="processing-choice-title">Nur SHARP</span>
+          <span class="processing-choice-description">Bild direkt in 3D umwandeln</span>
+        </button>
+      </div>
+      <p id="processing-note" class="processing-note" hidden></p>
+    </dialog>
+    <input id="file-input" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" hidden />
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

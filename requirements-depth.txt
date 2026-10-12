@@ -1,0 +1,35 @@
+# DA3 depth and native Gaussian runtime for Windows x64 / Python 3.12.
+# Install torch 2.8.0+cu128 and torchvision 0.23.0+cu128 first; they satisfy pins.
+# Install this file normally, then install the official DA3 source separately:
+# python -m pip install --no-deps "depth-anything-3 @ git+https://github.com/ByteDance-Seed/Depth-Anything-3.git@3d835ec1a5802d64a8b8b15f817a1ab54809bfe4"
+# --no-deps is essential: upstream metadata also requests xformers, open3d,
+# web apps, and development tooling that are unnecessary for metric inference.
+# Upstream Python API eagerly imports exporters, so their import dependencies
+# remain necessary even when export_dir=None and infer_gs=False.
+
+torch==2.8.0
+torchvision==0.23.0
+numpy==1.26.4
+Pillow==11.3.0
+opencv-python==4.11.0.86
+einops==0.8.1
+omegaconf==2.3.0
+addict==2.4.0
+huggingface-hub==0.36.2
+safetensors==0.7.0
+accelerate==1.12.0
+e3nn==0.5.8
+tqdm==4.67.1
+imageio==2.37.0
+imageio-ffmpeg==0.6.0
+scipy==1.16.3
+matplotlib==3.10.7
+trimesh==4.9.0
+plyfile==1.1.3
+pycolmap==3.12.6
+evo==1.34.2
+pandas==2.3.3
+# The official API imports moviepy.editor, removed in MoviePy 2.x.
+moviepy==1.0.3
+decorator==4.4.2
+proglog==0.1.12
